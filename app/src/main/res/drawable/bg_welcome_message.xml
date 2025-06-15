@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Color de fondo con transparencia -->
+    <solid android:color="#E3F2FD" /> <!-- Azul claro con transparencia -->
+
+    <!-- Bordes redondeados -->
+    <corners android:radius="8dp" />
+
+    <!-- Borde delgado -->
+    <stroke
+        android:width="1dp"
+        android:color="#BBDEFB" /> <!-- Azul más claro para el borde -->
+
+    <!-- Sombra ligera -->
+    <padding
+        android:left="4dp"
+        android:top="4dp"
+        android:right="4dp"
+        android:bottom="4dp" />
+
+</shape>

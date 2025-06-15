@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Selección de Rol -->
+        <TextView
+            android:id="@+id/tvSeleccionRol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seleccione su rol:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <RadioGroup
+            android:id="@+id/rgRol"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/tvSeleccionRol"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/rbAlumno"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alumno"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbMaestro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Maestro"
+                android:layout_marginStart="16dp"/>
+        </RadioGroup>
+
+        <!-- Campos comunes -->
+        <EditText
+            android:id="@+id/etNombres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombres"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@id/rgRol"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <EditText
+            android:id="@+id/etApellidoPaterno"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Apellido Paterno"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@id/etNombres"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/etApellidoMaterno"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Apellido Materno"
+            android:inputType="textPersonName"
+            app:layout_constraintTop_toBottomOf="@id/etApellidoPaterno"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/etCedulaIdentidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cédula de Identidad"
+            android:inputType="number"
+            app:layout_constraintTop_toBottomOf="@id/etApellidoMaterno"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Campos específicos para ALUMNO -->
+        <TextView
+            android:id="@+id/tvMatriculaLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Matrícula (Alumno)"
+            android:textColor="#6200EE"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/etCedulaIdentidad"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/etMatricula"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Matrícula"
+            android:inputType="text"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvMatriculaLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvCelularLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Celular (Alumno)"
+            android:textColor="#6200EE"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/etMatricula"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <LinearLayout
+            android:id="@+id/llCelular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvCelularLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tvPrefijoCelular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+591"
+                android:textSize="16sp"
+                android:layout_marginEnd="4dp"/>
+
+            <EditText
+                android:id="@+id/etNumeroCelular"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Número de Celular"
+                android:inputType="phone"/>
+        </LinearLayout>
+
+        <!-- Campo común para ambos -->
+        <EditText
+            android:id="@+id/etCorreoElectronico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo Electrónico"
+            android:inputType="textEmailAddress"
+            app:layout_constraintTop_toBottomOf="@id/llCelular"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Botón de Registro -->
+        <Button
+            android:id="@+id/btnRegistrar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="REGISTRARSE"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/etCorreoElectronico"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
