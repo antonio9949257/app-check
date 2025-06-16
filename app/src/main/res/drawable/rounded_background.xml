@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gradiente lineal vertical (de arriba a abajo) -->
+    <gradient
+        android:type="linear"
+        android:angle="270"
+        android:startColor="#021038"
+        android:endColor="#D5F7E6"
+        android:centerColor="#404040"
+    />
+
+    <corners
+        android:topLeftRadius="35dp"
+        android:topRightRadius="35dp"
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp"
+        />
+</shape>
