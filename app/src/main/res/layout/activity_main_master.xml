@@ -49,7 +49,7 @@
 
     <!-- Contenido dinámico (FrameLayout para fragments) -->
     <FrameLayout
-        android:id="@+id/frame_container"
+        android:id="@+id/frame_container_master"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
@@ -68,8 +68,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        app:labelVisibilityMode="selected"
         android:background="@drawable/rounded_back"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu_master" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

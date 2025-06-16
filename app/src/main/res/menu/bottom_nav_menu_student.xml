@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivityStudent">
+    <item
+        android:id="@+id/nav_escaneo"
+        android:icon="@mipmap/ic_launcher"
+        android:title="Escaneo" />
+    <item
+        android:id="@+id/nav_registro_estudiante"
+        android:icon="@mipmap/ic_launcher"
+        android:title="Registro" />
+    <item
+        android:id="@+id/nav_historial_estudiante"
+        android:icon="@mipmap/ic_launcher"
+        android:title="Historial" />
+
+</menu>

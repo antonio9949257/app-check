@@ -48,7 +48,7 @@ public class MainActivityMaster extends AppCompatActivity {
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.frame_container, fragment)
+                .replace(R.id.frame_container_master, fragment)
                 .commit();
     }
 }
