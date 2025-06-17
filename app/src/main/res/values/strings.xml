@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AppCheck</string>
+    <string name="seleccionar_materia">Seleccione una materia</string>
 </resources>

@@ -8,8 +8,53 @@
     android:background="#FFFFFF"
     tools:context=".EstudianteEscaneoFragment">
 
-    <!-- Los ImageButtons y TextViews de las opciones -->
+    <!-- Vista de la cámara para escanear QR -->
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Vista de superposición para el marco del QR -->
+    <ImageView
+        android:id="@+id/imageViewOverlay"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- TextView para mostrar el estado -->
+    <TextView
+        android:id="@+id/tvEstado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Buscando clase BLE..."
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textureView" />
+
+    <!-- Botón para reintentar -->
+    <Button
+        android:id="@+id/btnReintentar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Reintentar"
+        android:visibility="gone"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/tvEstado" />
+
+    <!-- Los ImageButtons y TextViews de las opciones (mantenidos de tu diseño original) -->
     <ImageButton
         android:id="@+id/facturacion"
         android:layout_width="56dp"
@@ -37,8 +82,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.515"
         app:srcCompat="@mipmap/ic_launcher" />
-
-    <!-- Todos los demás elementos de tu diseño actual -->
-    <!-- ... (todos los TextView, ImageButton, etc.) ... -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

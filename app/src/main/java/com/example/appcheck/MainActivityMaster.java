@@ -5,8 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivityMaster extends AppCompatActivity {
-
+public class MainActivityMaster extends AppCompatActivity
+        implements AddMateriaDialogFragment.AddMateriaDialogListener {
 
     private BottomNavigationView bottomNav;
 
@@ -50,5 +50,17 @@ public class MainActivityMaster extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.frame_container_master, fragment)
                 .commit();
+    }
+
+    @Override
+    public void onMateriaAdded(Materia materia) {
+        // Obtener el fragmento actual
+        Fragment currentFragment = getSupportFragmentManager()
+                .findFragmentById(R.id.frame_container_master);
+
+        // Si el fragmento actual es DocenteMateriaFragment, pasarle la nueva materia
+        if (currentFragment instanceof DocenteMateriaFragment) {
+            ((DocenteMateriaFragment) currentFragment).addNewMateria(materia);
+        }
     }
 }

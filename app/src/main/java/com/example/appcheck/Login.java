@@ -28,7 +28,7 @@ public class Login extends AppCompatActivity {
         tvInstrucciones = findViewById(R.id.tvInstrucciones);
 
         db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "usuarios-db").build();
+                AppDatabase.class, "app_database").build();
 
         androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 

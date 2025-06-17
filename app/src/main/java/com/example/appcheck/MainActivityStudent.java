@@ -19,7 +19,6 @@ public class MainActivityStudent extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        // Load initial fragment (HomeFragment by default)
         if (savedInstanceState == null) {
             loadFragment(new EstudianteEscaneoFragment());
         }
@@ -32,9 +31,9 @@ public class MainActivityStudent extends AppCompatActivity {
 
                 if (id == R.id.nav_escaneo) {
                     selectedFragment = new EstudianteEscaneoFragment();
-                } else if (id == R.id.nav_registro_estudiante) {
-                    selectedFragment = new EstudianteHistorialFragment();
                 } else if (id == R.id.nav_historial_estudiante) {
+                    selectedFragment = new EstudianteHistorialFragment();
+                } else if (id == R.id.nav_registro_estudiante) {
                     selectedFragment = new EstudianteRegistroFragment();
                 }
 

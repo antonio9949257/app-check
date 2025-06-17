@@ -35,7 +35,7 @@ public class RegistrationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "usuarios-db").build();
+                AppDatabase.class, "app_database").build();
 
         initViews();
 
