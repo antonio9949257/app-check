@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BluetoothServiceManager {
     private static final String TAG = "BLE_SERVICE";
+    private static final String BLE_TAG = "BLE_DEBUG";
 
     // UUIDs constantes
     private static final UUID SERVICE_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
@@ -46,8 +48,8 @@ public class BluetoothServiceManager {
         void onAdvertisingFailed(String error);
         void onServiceStarted();
         void onServiceStopped();
+        void onDataReceived(String deviceAddress, String data); // Método añadido
     }
-
     public BluetoothServiceManager(Context context, BluetoothEventListener listener) {
         this.context = context;
         this.eventListener = listener;
@@ -251,68 +253,104 @@ public class BluetoothServiceManager {
                                                  boolean preparedWrite, boolean responseNeeded,
                                                  int offset, byte[] value) {
 
-            Log.d(TAG, "onCharacteristicWriteRequest de: " + device.getAddress());
+            // 1. Registro detallado de la solicitud entrante
+            String deviceInfo = device.getName() != null ? device.getName() : "Dispositivo sin nombre";
+            Log.d(BLE_TAG, "Solicitud de escritura recibida de: " + deviceInfo + " (" + device.getAddress() + ")");
+            Log.d(BLE_TAG, "Request ID: " + requestId + ", Offset: " + offset + ", Response needed: " + responseNeeded);
 
-            // Verificar que es la característica de escritura correcta
+            // 2. Verificación de la característica correcta
             if (!characteristic.getUuid().equals(WRITE_CHARACTERISTIC_UUID)) {
-                Log.w(TAG, "Escritura en característica incorrecta: " + characteristic.getUuid());
+                String errorMsg = "Escritura en característica incorrecta: " + characteristic.getUuid();
+                Log.w(BLE_TAG, errorMsg);
+
                 if (bluetoothGattServer != null && responseNeeded) {
                     bluetoothGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_FAILURE, offset, null);
                 }
+
+                // Notificar error al listener
+                if (eventListener != null) {
+                    eventListener.onDataReceived(device.getAddress(), "ERROR: " + errorMsg);
+                }
                 return;
             }
 
+            // 3. Validación de datos recibidos
             if (value == null || value.length == 0) {
-                Log.w(TAG, "Datos vacíos recibidos");
+                Log.w(BLE_TAG, "Datos vacíos o nulos recibidos");
+
                 if (bluetoothGattServer != null && responseNeeded) {
                     bluetoothGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_FAILURE, offset, null);
+                }
+
+                if (eventListener != null) {
+                    eventListener.onDataReceived(device.getAddress(), "ERROR: Datos vacíos");
                 }
                 return;
             }
 
             try {
+                // 4. Convertir y registrar datos recibidos
                 String studentData = new String(value, StandardCharsets.UTF_8);
-                Log.d(TAG, "Datos del estudiante recibidos: " + studentData);
+                Log.d(BLE_TAG, "Datos RAW: " + Arrays.toString(value));
+                Log.d(BLE_TAG, "Datos como String: " + studentData);
 
-                // Extraer matrícula para generar código
+                // Notificar recepción de datos
+                if (eventListener != null) {
+                    eventListener.onDataReceived(device.getAddress(), studentData);
+                }
+
+                // 5. Procesamiento de datos del estudiante
                 String matricula = extractMatricula(studentData);
                 if (matricula == null || matricula.isEmpty()) {
-                    Log.w(TAG, "No se pudo extraer matrícula de los datos");
+                    String errorMsg = "No se pudo extraer matrícula de: " + studentData;
+                    Log.w(BLE_TAG, errorMsg);
+
                     if (bluetoothGattServer != null && responseNeeded) {
                         bluetoothGattServer.sendResponse(device, requestId,
                                 BluetoothGatt.GATT_FAILURE, offset, null);
                     }
+
+                    if (eventListener != null) {
+                        eventListener.onDataReceived(device.getAddress(), "ERROR: " + errorMsg);
+                    }
                     return;
                 }
 
-                // Generar código único para este dispositivo/estudiante
+                // 6. Generación y almacenamiento del código único
                 String code = generateUniqueCode(matricula, device);
+                Log.d(BLE_TAG, "Código generado para " + matricula + ": " + code);
 
-                // Almacenar datos asociados al dispositivo
+                // Almacenar datos en estructuras
                 deviceCodes.put(device, code);
                 deviceStudentData.put(device, studentData);
                 codigosGenerados.put(matricula, code);
 
-                // Enviar respuesta exitosa
+                // 7. Enviar respuesta exitosa al dispositivo
                 if (bluetoothGattServer != null && responseNeeded) {
                     bluetoothGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_SUCCESS, offset, null);
+                    Log.d(BLE_TAG, "Respuesta GATT_SUCCESS enviada");
                 }
 
-                // Notificar a la UI sobre el nuevo registro
+                // 8. Notificar registro exitoso a la UI
                 if (eventListener != null) {
                     eventListener.onStudentRegistered(studentData);
+                    Log.d(BLE_TAG, "Notificado registro de: " + matricula);
                 }
 
-                Log.d(TAG, "Estudiante registrado exitosamente: " + matricula + " -> " + code);
-
             } catch (Exception e) {
-                Log.e(TAG, "Error procesando datos del estudiante", e);
+                String errorMsg = "Error procesando datos: " + e.getMessage();
+                Log.e(BLE_TAG, errorMsg, e);
+
                 if (bluetoothGattServer != null && responseNeeded) {
                     bluetoothGattServer.sendResponse(device, requestId,
                             BluetoothGatt.GATT_FAILURE, offset, null);
+                }
+
+                if (eventListener != null) {
+                    eventListener.onDataReceived(device.getAddress(), "ERROR: " + errorMsg);
                 }
             }
         }

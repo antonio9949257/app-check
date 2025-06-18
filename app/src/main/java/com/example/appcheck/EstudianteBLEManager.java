@@ -13,24 +13,26 @@ import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EstudianteBLEManager {
     private static final String TAG = "EstudianteBLEManager";
-    private static final long SCAN_PERIOD = 15000; // 15 segundos
+    private static final long SCAN_PERIOD = 15000;
+    private static final long CONNECTION_TIMEOUT = 10000;
     private static final UUID SERVICE_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     private static final UUID WRITE_CHARACTERISTIC_UUID = UUID.fromString("0000A001-0000-1000-8000-00805F9B34FB");
     private static final UUID READ_CHARACTERISTIC_UUID = UUID.fromString("0000A002-0000-1000-8000-00805F9B34FB");
-
     private final Context context;
     private final BluetoothAdapter bluetoothAdapter;
     private final BluetoothLeScanner bleScanner;
-    private final EstudianteBLEListener listener;
+    private EstudianteBLEListener listener;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private BluetoothGatt bluetoothGatt;
     private String datosEstudiante;
     private ScanCallback scanCallback;
+    private boolean isConnecting = false;
 
     public interface EstudianteBLEListener {
         void onDeviceFound(DispositivoDocente dispositivo);
@@ -42,6 +44,10 @@ public class EstudianteBLEManager {
     }
 
     public EstudianteBLEManager(Context context, EstudianteBLEListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener cannot be null");
+        }
+
         this.context = context;
         this.listener = listener;
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -64,7 +70,7 @@ public class EstudianteBLEManager {
             jsonData.put("cedulaIdentidad", cedulaIdentidad);
             jsonData.put("celular", celular);
             jsonData.put("correo", correo);
-            jsonData.put("rol", rol); // Campo adicional para el rol
+            jsonData.put("rol", rol);
 
             this.datosEstudiante = jsonData.toString();
             Log.d(TAG, "Datos estudiante configurados: " + this.datosEstudiante);
@@ -106,6 +112,14 @@ public class EstudianteBLEManager {
             }
 
             @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+                super.onBatchScanResults(results);
+                for (ScanResult result : results) {
+                    processScanResult(result);
+                }
+            }
+
+            @Override
             public void onScanFailed(int errorCode) {
                 super.onScanFailed(errorCode);
                 Log.e(TAG, "Error en escaneo BLE: " + errorCode);
@@ -124,6 +138,8 @@ public class EstudianteBLEManager {
 
             ScanSettings settings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
                     .build();
 
             Log.d(TAG, "Iniciando escaneo BLE...");
@@ -198,6 +214,15 @@ public class EstudianteBLEManager {
             return;
         }
 
+        if (isConnecting) {
+            handler.post(() -> {
+                listener.onConnectionFailed("Ya hay una conexión en progreso");
+                listener.onStatusChanged("Error: Conexión en curso");
+            });
+            return;
+        }
+
+        isConnecting = true;
         handler.post(() -> {
             listener.onStatusChanged("Conectando...");
         });
@@ -205,11 +230,16 @@ public class EstudianteBLEManager {
         // Cerrar conexión anterior si existe
         closeGatt();
 
+        // Configurar timeout de conexión
+        handler.postDelayed(connectionTimeout, CONNECTION_TIMEOUT);
+
         try {
-            bluetoothGatt = dispositivo.getDevice().connectGatt(context, false, gattCallback);
+            bluetoothGatt = dispositivo.getDevice().connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
             Log.d(TAG, "Intentando conectar a: " + dispositivo.getDevice().getName());
         } catch (Exception e) {
             Log.e(TAG, "Error al conectar", e);
+            isConnecting = false;
+            handler.removeCallbacks(connectionTimeout);
             handler.post(() -> {
                 listener.onConnectionFailed("Error al conectar");
                 listener.onStatusChanged("Error de conexión");
@@ -217,6 +247,17 @@ public class EstudianteBLEManager {
         }
     }
 
+    private final Runnable connectionTimeout = () -> {
+        if (bluetoothGatt != null) {
+            Log.e(TAG, "Timeout de conexión alcanzado");
+            closeGatt();
+            handler.post(() -> {
+                listener.onConnectionFailed("Timeout de conexión"); // Now safe
+                listener.onStatusChanged("Error: Timeout");
+            });
+        }
+        isConnecting = false;
+    };
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -224,11 +265,21 @@ public class EstudianteBLEManager {
             Log.d(TAG, "onConnectionStateChange: " + newState + ", status: " + status);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                handler.removeCallbacks(connectionTimeout);
                 handler.post(() -> {
                     listener.onStatusChanged("Conectado, descubriendo servicios...");
                 });
-                gatt.discoverServices();
+                if (!gatt.discoverServices()) {
+                    Log.e(TAG, "Error al iniciar descubrimiento de servicios");
+                    handler.post(() -> {
+                        listener.onConnectionFailed("Error descubriendo servicios");
+                        listener.onStatusChanged("Error descubriendo servicios");
+                    });
+                    closeGatt();
+                }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                isConnecting = false;
+                handler.removeCallbacks(connectionTimeout);
                 handler.post(() -> {
                     listener.onConnectionFailed("Desconectado");
                     listener.onStatusChanged("Desconectado");
@@ -275,7 +326,13 @@ public class EstudianteBLEManager {
                         gatt.getService(SERVICE_UUID).getCharacteristic(READ_CHARACTERISTIC_UUID);
 
                 if (readCharacteristic != null) {
-                    gatt.readCharacteristic(readCharacteristic);
+                    if (!gatt.readCharacteristic(readCharacteristic)) {
+                        handler.post(() -> {
+                            listener.onConnectionFailed("Error al leer característica");
+                            listener.onStatusChanged("Error al leer confirmación");
+                        });
+                        closeGatt();
+                    }
                 } else {
                     handler.post(() -> {
                         listener.onConnectionFailed("Característica de lectura no encontrada");
@@ -297,6 +354,8 @@ public class EstudianteBLEManager {
             super.onCharacteristicRead(gatt, characteristic, status);
             Log.d(TAG, "onCharacteristicRead: " + status);
 
+            isConnecting = false;
+
             if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getValue() != null) {
                 String codigo = new String(characteristic.getValue(), StandardCharsets.UTF_8);
                 handler.post(() -> {
@@ -310,6 +369,14 @@ public class EstudianteBLEManager {
                 });
             }
             closeGatt();
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            super.onMtuChanged(gatt, mtu, status);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "MTU cambiado a: " + mtu);
+            }
         }
     };
 
@@ -327,6 +394,11 @@ public class EstudianteBLEManager {
                 service.getCharacteristic(WRITE_CHARACTERISTIC_UUID);
 
         if (writeCharacteristic != null) {
+            // Solicitar MTU mayor para asegurar la transmisión
+            if (!bluetoothGatt.requestMtu(512)) {
+                Log.w(TAG, "No se pudo solicitar cambio de MTU");
+            }
+
             writeCharacteristic.setValue(datosEstudiante.getBytes(StandardCharsets.UTF_8));
             if (!bluetoothGatt.writeCharacteristic(writeCharacteristic)) {
                 handler.post(() -> {
@@ -345,6 +417,9 @@ public class EstudianteBLEManager {
     }
 
     private void closeGatt() {
+        isConnecting = false;
+        handler.removeCallbacks(connectionTimeout);
+
         if (bluetoothGatt != null) {
             try {
                 bluetoothGatt.disconnect();
