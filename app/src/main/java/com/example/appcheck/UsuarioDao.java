@@ -1,4 +1,5 @@
 package com.example.appcheck;
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -18,4 +19,5 @@ public interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE androidId = :androidId LIMIT 1")
     Usuario getUsuarioPorAndroidId(String androidId);
+
 }

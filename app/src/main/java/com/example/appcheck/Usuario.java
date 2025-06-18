@@ -3,8 +3,11 @@ package com.example.appcheck;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "usuarios")
-public class Usuario {
+public class Usuario implements Serializable {
+    private static final long serialVersionUID = 1L;
     @PrimaryKey(autoGenerate = true)
     private int id;
 
@@ -21,7 +24,7 @@ public class Usuario {
 
     public Usuario(String rol, String nombres, String apellidoPaterno, String apellidoMaterno,
                    String cedulaIdentidad, String matricula, String celular,
-                   String correoElectronico, String androidId, String fechaRegistro) {
+                   String correoElectronico, String androidId, String fechaRegistro)  {
         this.rol = rol;
         this.nombres = nombres;
         this.apellidoPaterno = apellidoPaterno;
@@ -121,5 +124,8 @@ public class Usuario {
 
     public void setFechaRegistro(String fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+    public String getNombreCompleto() {
+        return nombres + " " + apellidoPaterno + " " + apellidoMaterno;
     }
 }

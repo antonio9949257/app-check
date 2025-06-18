@@ -5,36 +5,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#FFFFFF">
+    android:padding="16dp">
 
-    <!-- Título principal -->
     <TextView
         android:id="@+id/tvTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Registro de Asistencia"
         android:textSize="24sp"
-        android:textColor="#3F51B5"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Botón de inicio -->
     <Button
-        android:id="@+id/btnRegistrarse"
+        android:id="@+id/btnIniciarEscaneo"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#4CAF50"
         android:text="Iniciar escaneo"
-        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitulo"/>
 
-    <!-- Estado BLE -->
     <TextView
         android:id="@+id/tvEstadoBLE"
         android:layout_width="0dp"
@@ -44,21 +37,26 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnRegistrarse"/>
+        app:layout_constraintTop_toBottomOf="@id/btnIniciarEscaneo"/>
 
-    <!-- Lista de dispositivos encontrados -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDispositivos"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/tvInfoEstudiante"
+        app:layout_constraintBottom_toTopOf="@id/guidelineMiddle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvEstadoBLE"/>
 
-    <!-- Información del estudiante -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineMiddle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6"/>
+
     <TextView
         android:id="@+id/tvInfoEstudiante"
         android:layout_width="0dp"
@@ -68,31 +66,27 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rvDispositivos"/>
+        app:layout_constraintTop_toBottomOf="@id/guidelineMiddle"/>
 
-    <!-- Botón de registro -->
     <Button
         android:id="@+id/btnRegistrarse2"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="24dp"
-        android:backgroundTint="#4CAF50"
         android:text="Registrarse"
-        android:textColor="#FFFFFF"
         android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvInfoEstudiante"/>
 
-    <!-- Botón de cancelar -->
     <Button
         android:id="@+id/btnCancelar"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
-        android:backgroundTint="#F44336"
+        android:layout_marginBottom="16dp"
         android:text="Cancelar"
-        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnRegistrarse2"/>
